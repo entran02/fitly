@@ -2,6 +2,7 @@ import database from './database.ts';
 import express from 'express';
 import { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
+import bcrypt from 'bcrypt';
 
 const app = express();
 app.use(express.json());
@@ -26,7 +27,6 @@ async function executeQuery(query: string, values: any[] = []): Promise<any> {
 /**
  * Query Methods:
  */
-
 async function getAllUsers(): Promise<User[]> {
     const query = 'SELECT * FROM user';
     const users = await executeQuery(query);
@@ -45,7 +45,7 @@ async function createUser(user: User): Promise<void> {
 }
 
 
-app.get('/api/users', (req: Request, res: Response) => {
+app.get('/api/users/:id', async (req: Request, res: Response) => {
     const users = getAllUsers();
     res.json(users);
 });
