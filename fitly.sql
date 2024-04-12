@@ -36,12 +36,10 @@ CREATE TABLE Piece (
     PieceType VARCHAR(50),
     Color VARCHAR(50),
     Size VARCHAR(50),
-    BrandID INT,
     Material VARCHAR(100),
     Image VARCHAR(255),
     Favorite BOOLEAN,
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (BrandID) REFERENCES Brand(BrandID)
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
 CREATE TABLE Outfit_pieces (
@@ -49,6 +47,14 @@ CREATE TABLE Outfit_pieces (
     PieceID INT,
     PRIMARY KEY (OutfitID, PieceID),
     FOREIGN KEY (OutfitID) REFERENCES Outfit(OutfitID),
+    FOREIGN KEY (PieceID) REFERENCES Piece(PieceID) ON DELETE CASCADE
+);
+
+CREATE TABLE Brand_pieces (
+    BrandID INT,
+    PieceID INT,
+    PRIMARY KEY (BrandID, PieceID),
+    FOREIGN KEY (BrandID) REFERENCES Brand(BrandID),
     FOREIGN KEY (PieceID) REFERENCES Piece(PieceID) ON DELETE CASCADE
 );
 
