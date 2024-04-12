@@ -1,4 +1,42 @@
 import database from './database.ts';
+import express from 'express';
+import { Request, Response } from 'express';
+
+const app = express();
+app.use(express.json());
+
+
+/**
+ * Endpoints:
+ */
+app.get('/api/users', (req: Request, res: Response) => {
+    // Simulating data retrieval from a database
+    const users = [
+        { id: 1, name: 'John Doe', email: 'john@example.com' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+    ];
+
+    // Sending the users data as the response
+    res.json(users);
+});
+
+
+// Example API endpoint: POST /api/users
+app.post('/api/users', (req: Request, res: Response) => {
+    // Extracting the user data from the request body
+    const { name, email } = req.body;
+
+    // Simulating user creation in the database
+    const newUser = {
+        id: 3,
+        name,
+        email,
+    };
+
+    // Sending the created user as the response
+    res.status(201).json(newUser);
+});
+
 
 interface User {
     id: number;
@@ -45,4 +83,8 @@ async function main() {
     console.log('New user created');
 }
 
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+});
 main().catch(console.error);
