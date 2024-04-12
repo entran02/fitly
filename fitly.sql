@@ -1,82 +1,82 @@
 USE fitly;
 
-DROP TABLE IF EXISTS Outfit_pieces;
-DROP TABLE IF EXISTS Piece_style;
-DROP TABLE IF EXISTS Wishlisted_pieces;
-DROP TABLE IF EXISTS Wishlisted_outfits;
-DROP TABLE IF EXISTS Piece;
-DROP TABLE IF EXISTS Outfit;
-DROP TABLE IF EXISTS User;
-DROP TABLE IF EXISTS Style;
-DROP TABLE IF EXISTS Brand;
+DROP TABLE IF EXISTS outfit_pieces;
+DROP TABLE IF EXISTS piece_style;
+DROP TABLE IF EXISTS wishlisted_pieces;
+DROP TABLE IF EXISTS wishlisted_outifts;
+DROP TABLE IF EXISTS piece;
+DROP TABLE IF EXISTS outfit;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS style;
+DROP TABLE IF EXISTS brand;
 
-CREATE TABLE User (
-    UserID INT PRIMARY KEY AUTO_INCREMENT,
-    Username VARCHAR(255) NOT NULL,
-    Password VARCHAR(255) NOT NULL,
-    SizePreference VARCHAR(50)
+CREATE TABLE user (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    size_preference VARCHAR(50)
 );
 
-CREATE TABLE Outfit (
-    OutfitID INT PRIMARY KEY AUTO_INCREMENT,
-    UserID INT,
-    Favorite BOOLEAN,
-    FOREIGN KEY (UserID) REFERENCES User(UserID)
+CREATE TABLE outfit (
+    outfit_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    favortie BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
-CREATE TABLE Brand (
-    BrandID INT PRIMARY KEY AUTO_INCREMENT,
-    BrandName VARCHAR(255)
+CREATE TABLE brand (
+    brand_id INT PRIMARY KEY AUTO_INCREMENT,
+    brand_name VARCHAR(255)
 );
 
-CREATE TABLE Piece (
-    PieceID INT PRIMARY KEY AUTO_INCREMENT,
-    UserID INT,
-    PieceName VARCHAR(255),
-    PieceType VARCHAR(50),
-    Color VARCHAR(50),
-    Size VARCHAR(50),
-    BrandID INT,
-    Material VARCHAR(100),
-    Image VARCHAR(255),
-    Favorite BOOLEAN,
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (BrandID) REFERENCES Brand(BrandID)
+CREATE TABLE piece (
+    piece_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    piece_name VARCHAR(255),
+    piece_type VARCHAR(50),
+    color VARCHAR(50),
+    size VARCHAR(50),
+    brand_id INT,
+    material VARCHAR(100),
+    image VARCHAR(255),
+    favortie BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (brand_id) REFERENCES brand(brand_id)
 );
 
-CREATE TABLE Outfit_pieces (
-    OutfitID INT,
-    PieceID INT,
-    PRIMARY KEY (OutfitID, PieceID),
-    FOREIGN KEY (OutfitID) REFERENCES Outfit(OutfitID),
-    FOREIGN KEY (PieceID) REFERENCES Piece(PieceID) ON DELETE CASCADE
+CREATE TABLE outfit_pieces (
+    outfit_id INT,
+    piece_id INT,
+    PRIMARY KEY (outfit_id, piece_id),
+    FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id),
+    FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Style (
-    StyleID INT PRIMARY KEY AUTO_INCREMENT,
-    StyleName VARCHAR(255)
+CREATE TABLE style (
+    style_id INT PRIMARY KEY AUTO_INCREMENT,
+    style_name VARCHAR(255)
 );
 
-CREATE TABLE Piece_style (
-    StyleID INT,
-    PieceID INT,
-    PRIMARY KEY (StyleID, PieceID),
-    FOREIGN KEY (StyleID) REFERENCES Style(StyleID),
-    FOREIGN KEY (PieceID) REFERENCES Piece(PieceID) ON DELETE CASCADE
+CREATE TABLE piece_style (
+    style_id INT,
+    piece_id INT,
+    PRIMARY KEY (style_id, piece_id),
+    FOREIGN KEY (style_id) REFERENCES style(style_id),
+    FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Wishlisted_pieces (
-    UserID INT,
-    PieceID INT,
-    PRIMARY KEY (UserID, PieceID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (PieceID) REFERENCES Piece(PieceID) ON DELETE CASCADE
+CREATE TABLE wishlisted_pieces (
+    user_id INT,
+    piece_id INT,
+    PRIMARY KEY (user_id, piece_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Wishlisted_outfits (
-    UserID INT,
-    OutfitID INT,
-    PRIMARY KEY (UserID, OutfitID),
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (OutfitID) REFERENCES Outfit(OutfitID) ON DELETE CASCADE
+CREATE TABLE wishlisted_outifts (
+    user_id INT,
+    outfit_id INT,
+    PRIMARY KEY (user_id, outfit_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE
 );
