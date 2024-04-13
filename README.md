@@ -1,3 +1,6 @@
+# Setting up your environment
+run 'npm install' in both the frontend and backend directories.
+
 # How to run the frontend:
 cd FITLY/frontend
 npm start
