@@ -4,33 +4,13 @@ import { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import cors from "cors";
+import 'types.ts';
 
 // set up app
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-/**
- * Type declarations go here for now
- */
-interface User {
-    user_id: number;
-    username: string;
-    password: string;
-    sizePreference: string;
-};
-
-interface Piece {
-    piece_id: number;
-    user_id: number;
-    piece_name: string;
-    piece_type: string;
-    color: string;
-    size: string;
-    brand_id: number;
-    material: string;
-    image: string;
-};
 
 /**
  * Sends a query to the db object
