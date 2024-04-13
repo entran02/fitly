@@ -20,7 +20,6 @@ CREATE TABLE user (
 CREATE TABLE outfit (
     outfit_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
-    favortie BOOLEAN,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE SET NULL
 );
 
@@ -39,7 +38,6 @@ CREATE TABLE piece (
     brand_id INT,
     material VARCHAR(100),
     image VARCHAR(255),
-    favortie BOOLEAN,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE, 
     FOREIGN KEY (brand_id) REFERENCES brand(brand_id) ON DELETE SET NULL
 );
