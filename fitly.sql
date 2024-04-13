@@ -21,7 +21,7 @@ CREATE TABLE outfit (
     outfit_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     favortie BOOLEAN,
-    FOREIGN KEY (user_id) REFERENCES user(user_id)
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE brand (
@@ -40,15 +40,15 @@ CREATE TABLE piece (
     material VARCHAR(100),
     image VARCHAR(255),
     favortie BOOLEAN,
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
-    FOREIGN KEY (brand_id) REFERENCES brand(brand_id)
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE, 
+    FOREIGN KEY (brand_id) REFERENCES brand(brand_id) ON DELETE SET NULL
 );
 
 CREATE TABLE outfit_pieces (
     outfit_id INT,
     piece_id INT,
     PRIMARY KEY (outfit_id, piece_id),
-    FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id),
+    FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE,
     FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE piece_style (
     style_id INT,
     piece_id INT,
     PRIMARY KEY (style_id, piece_id),
-    FOREIGN KEY (style_id) REFERENCES style(style_id),
+    FOREIGN KEY (style_id) REFERENCES style(style_id) ON DELETE CASCADE,
     FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
@@ -69,7 +69,7 @@ CREATE TABLE wishlisted_pieces (
     user_id INT,
     piece_id INT,
     PRIMARY KEY (user_id, piece_id),
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
@@ -77,6 +77,6 @@ CREATE TABLE wishlisted_outifts (
     user_id INT,
     outfit_id INT,
     PRIMARY KEY (user_id, outfit_id),
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE
 );
