@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import cors from "cors";
-import 'types.ts';
+import './types.ts';
 
 // set up app
 const app = express();
