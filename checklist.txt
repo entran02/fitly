@@ -1,0 +1,16 @@
+- make sure connectivity works
+- implement secure password hashing
+- implement endpoint to:
+    - login / create account
+    - post user
+    - put user
+    - get user by id
+    - post outfit 
+    - put pieces in outfit
+    - get outfits by user id
+    - get outfits by outfit_id
+    - delete outfit
+    - get all pieces
+    - get piece by id
+    - 
+    - post 

@@ -1,0 +1,8 @@
+.home-page {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .home-page header {
+    flex: 1;
+  }
