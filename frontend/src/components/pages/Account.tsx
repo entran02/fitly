@@ -8,8 +8,8 @@ export const Account = () => {
 
      return (
           <div className="page">
-               <h2>Your Account</h2>
-               <p>Username: {user.name}</p>
+               <h2>your account</h2>
+               <p>username: {user.name}</p>
           </div>
      )
 }

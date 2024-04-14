@@ -19,6 +19,9 @@ const RenderMenu = () => {
           return (
                <nav className="navbar navbar-expand bg-light">
       <ul className="navbar-nav">
+          <li className="nav-item">
+               <Link className="nav-link" to='/'>fitly</Link>
+          </li>
         {nav.map((r, i) => {
           if (!r.isPrivate && r.isMenu) {
             return <MenuItem key={i} r={r} />;
@@ -30,14 +33,14 @@ const RenderMenu = () => {
         })}
         {user.isAuthenticated ? (
           <li className="nav-item">
-            <Link className="nav-link" to="#" onClick={logout}>
-              Log out
+            <Link className="nav-link" to="/" onClick={logout}>
+              log out
             </Link>
           </li>
         ) : (
           <li className="nav-item">
             <Link className="nav-link" to="login">
-              Log in
+              log in
             </Link>
           </li>
         )}

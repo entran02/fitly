@@ -1,12 +1,11 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-export const About = () => {
+export const WishlistPieces = () => {
 
      return (
           <div className="page">
-               <h2>About page</h2>
-               <p>This is the text for the about page</p>
+               <h2>wishlist pieces</h2>
           </div>
      )
 }

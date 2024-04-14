@@ -26,7 +26,7 @@ export const Login = () => {
 
      return (
           <div className="page">
-               <h2>Login page</h2>
+               <h2>login page</h2>
                <div className="inputs">
                     <div className="input">
                          <input value={formData.userName} onChange={(e) => setFormData({userName: e.target.value}) } type="text"/>
@@ -35,7 +35,7 @@ export const Login = () => {
                          <input value={formData.password} onChange={(e) => setFormData({password: e.target.value}) } type="password"/>
                     </div>
                     <div className="button">
-                         <button onClick={doLogin}>Log in</button>
+                         <button onClick={doLogin}>log in</button>
                     </div>
                     {errorMessage ?
                     <div className="error">{errorMessage}</div>
