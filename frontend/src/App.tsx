@@ -1,14 +1,19 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
-import HomePage from './homepage/HomePage.tsx';
+import {BrowserRouter} from 'react-router-dom';
+import { AuthWrapper } from './auth/AuthWrapper.tsx';
+import "bootstrap/dist/css/bootstrap.min.css";
+
 
 function App() {
   return (
+
     <div className="App">
-      <header className="App-header">
-        <HomePage />
-      </header>
+      <BrowserRouter>
+        <AuthWrapper/>
+      </BrowserRouter>
     </div>
+
   );
 }
 
