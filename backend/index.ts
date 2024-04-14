@@ -5,11 +5,13 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import cors from "cors";
 import './types.ts';
+import multer from 'multer';
 
 // set up app
 const app = express();
 app.use(cors());
 app.use(express.json());
+const upload = multer({ storage: multer.memoryStorage() });
 
 
 /**
@@ -62,6 +64,11 @@ async function getAllPieces(): Promise<Piece[]> {
     const pieces = await executeQuery(query);
     console.error(pieces);
     return pieces as Piece[];
+}
+
+async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<void> {
+    const query = 'INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
 }
 
 /**
@@ -139,6 +146,27 @@ app.get('/api/pieces', async (req: Request, res: Response) => {
         res.status(404).json({ error: 'no pieces found' });
     }
 });
+
+app.post('/upload', upload.single('image'), (req, res) => {
+  const image = req.file;
+    uploadPiece(req.user_id, req.piece_name, req.piece_type, req.color, req.size, req.material, image);
+    
+    res.json({ message: 'Image uploaded successfully' });
+});
+
+
+// test data
+
+// testing to make sure that a piece gets uploaded
+const test1 = await getUserByUsername('test1');
+if (!test1) {
+    console.error(await createUser("test1", "test1"))
+}
+console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+const pieces = await getAllPieces();
+console.error(pieces);
+
 
 
 app.listen(8000, () => {
