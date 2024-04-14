@@ -7,7 +7,7 @@ npm start
 
 # How to run backend:
 cd FITLY/backend
-npx tsx index.js
+npx tsx index.ts
 
 # How to connect backend to DB:
 First, make sure that the MySQL server is running with the fitly.sql file.
