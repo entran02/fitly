@@ -46,9 +46,15 @@ async function getUserById(user_id: number): Promise<User | null> {
     return users as User;
 }
 
-async function createUser(user: User): Promise<void> {
+async function getUserByUsername(username: string): Promise<User | null> {
+    const query = 'SELECT * FROM user WHERE username = ?';
+    const user = await executeQuery(query, [username]);
+    return user[0] as User;
+}
+
+async function createUser(username: string, password: string): Promise<void> {
     const query = 'INSERT INTO user (username, password, size_preference) VALUES (?, ?, ?)';
-    await executeQuery(query, [user.user_id, user.password, user.sizePreference]);
+    await executeQuery(query, [username, password, '']);
 }
 
 async function getAllPieces(): Promise<Piece[]> {
@@ -69,7 +75,46 @@ app.get('/api/users/:id', async (req: Request, res: Response) => {
       } else {
         // User not found
         res.status(404).json({ error: 'User not found' });
+    }
+});
 
+app.post('/api/login', async (req: Request, res: Response) => {
+
+    const { username, password } = req.body;
+    const user = await getUserByUsername(username);        
+    if (!user && user === undefined) {
+
+        res.status(401).json({ error: 'Invalid username or password' });
+        return;
+    }
+
+    if (String(password) === String(user?.password)) {
+        res.json(user);
+    } else {
+        res.status(401).json({ error: 'Invalid username or password' });
+    }
+});
+
+app.get('/api/users/username/:username', async (req: Request, res: Response) => {
+    const user = await getUserByUsername(req.params.username);
+    if (user) {
+        // User found
+        res.json(user);
+      } else {
+        // User not found
+        res.status(404).json({ error: 'User not found' });
+    }
+});
+
+app.post('/api/create/user', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    const user = await getUserByUsername(username);
+    if (user?.username === username) {
+        res.status(404).json({ error: 'Username already exists' });
+    } else {
+        await createUser(username, password);
+        const newUser = await getUserByUsername(username);
+        res.json(newUser);
     }
 });
 
@@ -85,6 +130,7 @@ app.get('/api/users', async (req: Request, res: Response) => {
 });
 
 
+
 app.get('/api/pieces', async (req: Request, res: Response) => {
     const pieces = await getAllPieces();
     if (pieces) {
@@ -93,6 +139,7 @@ app.get('/api/pieces', async (req: Request, res: Response) => {
         res.status(404).json({ error: 'no pieces found' });
     }
 });
+
 
 app.listen(8000, () => {
     console.log('Server is running on port 8000');

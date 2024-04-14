@@ -4,8 +4,9 @@ import RenderRoutes from "../components/structure/RenderRoutes.tsx";
 import RenderMenu from "../components/structure/RenderMenu.tsx";
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
-const AuthContext = createContext({user: {name: '', isAuthenticated: false}, login: (username, password) => {}, logout: () => {}});
+const AuthContext = createContext({user: {name: '', isAuthenticated: false}, login: (username, password) => {}, logout: () => {}, createAccount: (username: string, password1: string, password2: string) => {}});
 export const AuthData = () => useContext(AuthContext);
 
 
@@ -13,22 +14,65 @@ export const AuthWrapper = () => {
 
      const [ user, setUser ] = useState({name: "", isAuthenticated: false})
 
-     const login = (userName, password) => {
+     const login = async (userName, password) => {
+
+          try {
+               const response = await axios.post('http://localhost:8000/api/login', { username: userName, password: password });
+               const data = response.data;
+               // Handle the response data
+
+               return new Promise((resolve, reject) => {
+
+                    if (data.username === userName) {
+                         setUser({name: userName, isAuthenticated: true});
+                         resolve("success");
+                    } else {
+                         reject("Incorrect password");
+                    }
+               })
+          } catch (error) {
+               console.error('Error:', error);
+               // Handle any errors
+               return new Promise((resolve, reject) => {
+                    reject("Incorrect password");
+               })
+          }
 
           // Make a call to the authentication API to check the username
           
-          return new Promise((resolve, reject) => {
+          
+     }
 
-               if (password === "password") {
-                    setUser({name: userName, isAuthenticated: true})
-                    resolve("success")
-               } else {
-                    reject("Incorrect password")
-               }
-          })
+     const createAccount = async (userName, password1, password2) => {
+          if (password1 !== password2) {
+               return new Promise((resolve, reject) => {
+                    reject("Passwords do not match")
+               })
+          }
+
+          try {
+               const response = await axios.post('http://localhost:8000/api/create/user', { username: userName, password: password1 });
+               const data = response.data;
+               const errMsg = response.statusText;
+
+               return new Promise((resolve, reject) => {
+
+                    setUser({name: userName, isAuthenticated: true});
+                    resolve("success");
+               })
+          } catch (error) {
+               console.error('Error:', error);
+               // Handle any errors
+               return new Promise((resolve, reject) => {
+                    reject("Try a different username");
+               })
+          }
+
+          // Make a call to the authentication API to check the username
           
           
      }
+
      const logout = () => {
 
           setUser({...user, isAuthenticated: false})
@@ -37,12 +81,11 @@ export const AuthWrapper = () => {
 
      return (
           
-               <AuthContext.Provider value={{user, login, logout}}>
+               <AuthContext.Provider value={{user, login, logout, createAccount}}>
                     <>
                          <RenderMenu />
                          <RenderRoutes />
                     </>
-                    
                </AuthContext.Provider>
           
      )

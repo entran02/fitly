@@ -44,6 +44,13 @@ const RenderMenu = () => {
             </Link>
           </li>
         )}
+        {user.isAuthenticated ? (<></>) : (
+          <li className="nav-item">
+               <Link className="nav-link" to="createuser">
+                    create account
+               </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

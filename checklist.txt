@@ -1,16 +1,14 @@
-- make sure connectivity works
-- implement secure password hashing
-- implement endpoint to:
-    - login / create account
-    - post user
-    - put user
-    - get user by id
-    - post outfit 
-    - put pieces in outfit
-    - get outfits by user id
-    - get outfits by outfit_id
-    - delete outfit
-    - get all pieces
-    - get piece by id
-    - 
-    - post 
+- implement secure password hashing (optional)
+
+edit login to have temporary text values in input fields
+
+login api call created
+create user api created
+
+need to :
+connect api calls to frontend
+
+
+
+
+make sure that when user is returned by the backend, that the password is ommitted from the fields
