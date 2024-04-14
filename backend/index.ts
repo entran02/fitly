@@ -71,6 +71,43 @@ async function uploadPiece(user_id, piece_name, piece_type, color, size, materia
     await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
 }
 
+async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
+    let query = `
+        SELECT p.*, b.brand_name FROM piece p
+        LEFT JOIN brand b ON p.brand_id = b.brand_id
+        WHERE TRUE`;
+    let values: string[] = [];
+
+    if (params.piece_name) {
+        query += ' AND p.piece_name LIKE ?';
+        values.push(`%${params.piece_name}%`);
+    }
+    if (params.piece_type) {
+        query += ' AND p.piece_type LIKE ?';
+        values.push(`%${params.piece_type}%`);
+    }
+    if (params.color) {
+        query += ' AND p.color LIKE ?';
+        values.push(`%${params.color}%`);
+    }
+    if (params.size) {
+        query += ' AND p.size LIKE ?';
+        values.push(`%${params.size}%`);
+    }
+    if (params.brand_name) {
+        query += ' AND b.brand_name LIKE ?';
+        values.push(`%${params.brand_name}%`);
+    }
+    if (params.material) {
+        query += ' AND p.material LIKE ?';
+        values.push(`%${params.material}%`);
+    }
+
+    const pieces = await executeQuery(query, values);
+    return pieces as Piece[];
+}
+
+
 /**
  * API Endpoints:
  */
@@ -153,6 +190,26 @@ app.post('/upload', upload.single('image'), (req, res) => {
     
     res.json({ message: 'Image uploaded successfully' });
 });
+
+app.get('/api/search/pieces', async (req: Request, res: Response) => {
+    // Collect search parameters from the query string
+    const searchParams = {
+        piece_name: req.query.piece_name as string | undefined,
+        piece_type: req.query.piece_type as string | undefined,
+        color: req.query.color as string | undefined,
+        size: req.query.size as string | undefined,
+        brand_name: req.query.brand_name as string | undefined,
+        material: req.query.material as string | undefined,
+    };
+
+    try {
+        const pieces = await searchPieces(searchParams);
+        res.json(pieces);
+    } catch (error) {
+        res.status(500).json({ error: 'Error executing search' });
+    }
+});
+
 
 
 // test data

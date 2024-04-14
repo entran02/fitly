@@ -21,25 +21,15 @@ interface Piece {
     user_id: number;
     image: string;
 }
-export default function PieceCard() {
-  const [pieces, setPieces] = React.useState([]);
 
+interface PieceCardProps {
+  pieces: Piece[];
+}
+
+const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
   React.useEffect(() => {
-    async function getAllPieces() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/pieces');
-        const data = response.data;
-        if (data) {
-          setPieces(data);
-        }
-      } catch (error) {
-        console.error('Error fetching pieces:', error);
-      }
-    }
-
-    getAllPieces();
-  }, []);
-
+    console.log('PieceCard receiving pieces:', pieces);
+}, [pieces]);
   return (
     <Grid container spacing={2}>
       {pieces.map((piece: Piece) => (
@@ -71,3 +61,5 @@ export default function PieceCard() {
     </Grid>
   );
 }
+
+export default PieceCard;
