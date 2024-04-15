@@ -1,16 +1,21 @@
-- implement secure password hashing (optional)
+- implement secure password hashing (optional) make sure that when user is returned by the backend, that the password is ommitted from the fields
 
-
-make sure that when user is returned by the backend, that the password is ommitted from the fields
-
-create outfits
+create outfits (same logic as creating pieces)
 add pieces to outfits from home / my pieces
 remove pieces from my pieces
 ( when we remove piece from my piece, remove it from outfit?)
 
-upload a piece
 
-add piece to my pieces
+add piece to my pieces (insert into fitly.wishlisted_pieces)
+- query using user.user_id and piece_id, if entry exists, then don't insert
+- else insert
+button can make call to api multiple times but backend will handle not allowing a query
+
+delete from my pieces
+- query using user.user_id and piece_id
+- - if piece.user_id is user.user_id, delete piece
+- - else remove from wishlisted_pieces
+
 
 update user information in account page
 
