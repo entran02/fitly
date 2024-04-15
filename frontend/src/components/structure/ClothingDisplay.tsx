@@ -13,6 +13,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import Grid from '@mui/material/Grid';
+import { useState } from 'react';
 
 interface Piece {
     piece_id: number;
@@ -27,9 +28,19 @@ interface PieceCardProps {
 }
 
 const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
+    // const [img, setImg] = useState(null);
+
+    // async function getImg(img) {
+    //     const image = await axios.post(`http://localhost:8000/api/uploads/${img}`);
+    //     setImg(image);
+    // }
   React.useEffect(() => {
     console.log('PieceCard receiving pieces:', pieces);
 }, [pieces]);
+
+    // function favorite(piece_id) {
+    //     const f = await axios.
+    // }
   return (
     <Grid container spacing={2}>
       {pieces.map((piece: Piece) => (
@@ -42,14 +53,16 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
                 </Avatar>
               }
               action={
-                <IconButton aria-label="favorite">
+                // <div onClick={favorite(piece.piece_id)}>
+                <IconButton aria-label="favorite" >
                   <FavoriteIcon />
                 </IconButton>
+                // </div>
               }
               title={piece.piece_name}
               subheader={piece.size}
             />
-            <CardMedia component="img" height="194" image={piece.image} alt={piece.piece_name} />
+            <CardMedia component="img" height="194" image={`http://localhost:8000/api/uploads/${piece.image}`} alt={piece.piece_name} />
             <CardActions disableSpacing>
               <IconButton aria-label="remove">
                 <DeleteIcon />

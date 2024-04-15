@@ -6,25 +6,28 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
-const AuthContext = createContext({user: {name: '', isAuthenticated: false}, login: (username, password) => {}, logout: () => {}, createAccount: (username: string, password1: string, password2: string) => {}});
+const AuthContext = createContext({user: {name: '', isAuthenticated: false, id: ''}, login: (username, password) => {}, logout: () => {}, createAccount: (username: string, password1: string, password2: string) => {}});
 export const AuthData = () => useContext(AuthContext);
 
 
 export const AuthWrapper = () => {
 
-     const [ user, setUser ] = useState({name: "", isAuthenticated: false})
+     const [ user, setUser ] = useState({name: "", isAuthenticated: false, id: ''})
 
      const login = async (userName, password) => {
 
           try {
                const response = await axios.post('http://localhost:8000/api/login', { username: userName, password: password });
                const data = response.data;
+               console.log('DATA: ' + data)
                // Handle the response data
 
                return new Promise((resolve, reject) => {
 
                     if (data.username === userName) {
-                         setUser({name: userName, isAuthenticated: true});
+                         console.log('USER ID =' + data.id)
+                         console.log('USERNAME =' + data.username)
+                         setUser({name: userName, isAuthenticated: true, id: data.id});
                          resolve("success");
                     } else {
                          reject("Incorrect password");
@@ -57,7 +60,7 @@ export const AuthWrapper = () => {
 
                return new Promise((resolve, reject) => {
 
-                    setUser({name: userName, isAuthenticated: true});
+                    setUser({name: userName , id: data.id, isAuthenticated: true});
                     resolve("success");
                })
           } catch (error) {
@@ -75,7 +78,7 @@ export const AuthWrapper = () => {
 
      const logout = () => {
 
-          setUser({...user, isAuthenticated: false})
+          setUser({name: '', isAuthenticated: false, id: ''})
      }
 
 

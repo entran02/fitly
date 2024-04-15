@@ -1,14 +1,17 @@
 - implement secure password hashing (optional)
 
-edit login to have temporary text values in input fields
-
-login api call created
-create user api created
-
-need to :
-connect api calls to frontend
-
-
-
 
 make sure that when user is returned by the backend, that the password is ommitted from the fields
+
+create outfits
+add pieces to outfits from home / my pieces
+remove pieces from my pieces
+( when we remove piece from my piece, remove it from outfit?)
+
+upload a piece
+
+add piece to my pieces
+
+update user information in account page
+
+

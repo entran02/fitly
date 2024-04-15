@@ -6,12 +6,22 @@ import bcrypt from 'bcrypt';
 import cors from "cors";
 import './types.ts';
 import multer from 'multer';
+import path from 'path';
 
 // set up app
 const app = express();
 app.use(cors());
 app.use(express.json());
-const upload = multer({ storage: multer.memoryStorage() });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
 
 
 /**
@@ -62,13 +72,12 @@ async function createUser(username: string, password: string): Promise<void> {
 async function getAllPieces(): Promise<Piece[]> {
     const query = 'SELECT * FROM piece';
     const pieces = await executeQuery(query);
-    console.error(pieces);
     return pieces as Piece[];
 }
 
 async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<void> {
     const query = 'INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
+    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image.filename])
 }
 
 async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
@@ -132,8 +141,8 @@ app.post('/api/login', async (req: Request, res: Response) => {
         return;
     }
 
-    if (String(password) === String(user?.password)) {
-        res.json(user);
+    if (user && String(password) === String(user.password)) {
+        res.json({username: user.username, id: user.user_id});
     } else {
         res.status(401).json({ error: 'Invalid username or password' });
     }
@@ -184,12 +193,31 @@ app.get('/api/pieces', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/upload', upload.single('image'), (req, res) => {
-  const image = req.file;
-    uploadPiece(req.user_id, req.piece_name, req.piece_type, req.color, req.size, req.material, image);
+app.get('/api/uploads/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = './uploads/' + filename;
+
+  res.sendFile(path.resolve(filePath), (err) => {
+    if (err) {
+      res.status(404).json({ error: 'File not found' });
+    }
+  });
+});
+
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+            console.error('no file uploaded')
+
+    return res.status(400).send('No file uploaded.');
+    
+  }
+    const { user_id, piece_name, piece_type, color, size, material } = req.body;
+
+    uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file);
     
     res.json({ message: 'Image uploaded successfully' });
 });
+
 
 app.get('/api/search/pieces', async (req: Request, res: Response) => {
     // Collect search parameters from the query string
@@ -212,6 +240,8 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
 
 
 
+
+
 // test data
 
 // testing to make sure that a piece gets uploaded
@@ -219,15 +249,14 @@ const test1 = await getUserByUsername('test1');
 if (!test1) {
     console.error(await createUser("test1", "test1"))
 }
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-console.error(await uploadPiece(1, 'shirt', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
-const pieces = await getAllPieces();
-console.error(pieces);
+// console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// console.error(await uploadPiece(1, 'shirt2', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// console.error(await uploadPiece(1, 'shirt3', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// console.error(await uploadPiece(1, 'shirt4', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// console.error(await uploadPiece(1, 'shirt5', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// console.error(await uploadPiece(1, 'shirt6', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+// const pieces = await getAllPieces();
+// console.error(pieces);
 
 
 
