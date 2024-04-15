@@ -14,6 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import Grid from '@mui/material/Grid';
 import { useState } from 'react';
+import {AuthData} from '../../auth/AuthWrapper.tsx'
 
 interface Piece {
     piece_id: number;
@@ -28,6 +29,19 @@ interface PieceCardProps {
 }
 
 const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
+    const { user } = AuthData();
+
+    async function favoritePiece(piece_id) {
+        try {
+            console.log('hellooooo')
+            console.log(piece_id)
+            console.log(user.id)
+            const res = await axios.post(`http://localhost:8000/api/users/${user.id}/wishlist`, { pieceId: piece_id })
+            console.log(res)
+        } catch (error) {
+            console.error("error: " +  error);
+        }
+    }
     // const [img, setImg] = useState(null);
 
     // async function getImg(img) {
@@ -54,9 +68,9 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
               }
               action={
                 // <div onClick={favorite(piece.piece_id)}>
-                <IconButton aria-label="favorite" >
+                <button className='btn' aria-label="favorite" onClick={() => favoritePiece(piece.piece_id)}>
                   <FavoriteIcon />
-                </IconButton>
+                </button>
                 // </div>
               }
               title={piece.piece_name}

@@ -80,6 +80,29 @@ async function uploadPiece(user_id, piece_name, piece_type, color, size, materia
     await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
 }
 
+
+async function getWishlistedPieceFromUserId(user_id: string): Promise<Piece[]> {
+    const query = `
+    SELECT p.*
+    FROM piece p
+    INNER JOIN wishlisted_pieces wp ON p.piece_id = wp.piece_id
+    WHERE wp.user_id = ?;
+    `;
+    const pieces = await executeQuery(query, [user_id]);
+    return pieces as Piece[];
+}
+
+async function addWishlistedPiece(userId: string, pieceId: string): Promise<void> {
+  const query = 'INSERT INTO wishlisted_pieces (user_id, piece_id) VALUES (?, ?);';
+  await executeQuery(query, [userId, pieceId]);
+}
+
+async function getPieceByUserIdAndPieceId(userId: string, pieceId: string): Promise<Piece | null> {
+  const query = 'SELECT * FROM wishlisted_pieces WHERE user_id = ? AND piece_id = ?;';
+  const result = await executeQuery(query, [userId, pieceId]);
+  return result[0] as Piece | null;
+}
+
 async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
     let query = `
         SELECT p.*, b.brand_name FROM piece p
@@ -204,7 +227,7 @@ app.get('/api/uploads/:filename', (req, res) => {
   });
 });
 
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post('/api/upload', upload.single('image'), async (req: Request, res: Response) => {
     if (!req.file) {
             console.error('no file uploaded')
 
@@ -213,9 +236,42 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   }
     const { user_id, piece_name, piece_type, color, size, material } = req.body;
 
-    uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
+    await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
     
     res.json({ message: 'Image uploaded successfully' });
+});
+
+app.get('/api/users/:userId/wishlist', async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  try {
+    const wishlistedPieces = await getWishlistedPieceFromUserId(userId);
+    res.json(wishlistedPieces);
+  } catch (error) {
+    console.error('Error retrieving wishlisted pieces:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/users/:userId/wishlist', async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  const { pieceId } = req.body;
+  console.error('piece id: ' + pieceId)
+  console.error('userID: ' + userId)
+
+  try {
+    const wishlistedPiece = await getPieceByUserIdAndPieceId(userId, pieceId);
+    if (wishlistedPiece && wishlistedPiece.piece_id === pieceId) {
+        console.error(wishlistedPiece)
+        console.error('piece added to wishlist already')
+        res.status(201).json({ message: 'Piece added to wishlist' });
+        return;
+    }
+    await addWishlistedPiece(userId, pieceId);
+    res.status(201).json({ message: 'Piece added to wishlist' });
+  } catch (error) {
+    console.error('Error adding piece to wishlist:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 

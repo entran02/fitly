@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PieceCard from "../structure/ClothingDisplay.tsx";
 import axios from "axios";
 import {AuthData} from '../../auth/AuthWrapper.tsx'
 import { buttonBaseClasses } from "@mui/material";
+import ClothingDisplay from "../structure/ClothingDisplay.tsx";
 
 export const WishlistPieces = () => {
      const [showForm, setShowForm] = useState(false);
@@ -88,7 +89,20 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
     }
   };
 
-  
+       const [pieces, setPieces] = useState([]);
+
+     useEffect(() => {
+          const fetchPieces = async () => {
+            try {
+            const res = await axios.get(`http://localhost:8000/api/users/${user.id}/wishlist`)
+              setPieces(res.data);
+            } catch (error) {
+              console.error('Error fetching pieces:', error);
+              setPieces([]);
+            }
+          };
+          fetchPieces();
+        }, []);
 
   return (
 <>
@@ -148,6 +162,8 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
      
      { submitted ? <h5>Piece was uploaded!</h5> : <></>}
     </form>}
+    
+    <ClothingDisplay pieces={pieces}/>
       
 </>
    
