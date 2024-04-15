@@ -77,7 +77,7 @@ async function getAllPieces(): Promise<Piece[]> {
 
 async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<void> {
     const query = 'INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image.filename])
+    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
 }
 
 async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
@@ -213,7 +213,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   }
     const { user_id, piece_name, piece_type, color, size, material } = req.body;
 
-    uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file);
+    uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
     
     res.json({ message: 'Image uploaded successfully' });
 });
@@ -249,7 +249,8 @@ const test1 = await getUserByUsername('test1');
 if (!test1) {
     console.error(await createUser("test1", "test1"))
 }
-// console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
 // console.error(await uploadPiece(1, 'shirt2', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt3', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt4', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
