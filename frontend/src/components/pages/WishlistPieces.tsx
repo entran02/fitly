@@ -174,7 +174,7 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
      { submitted ? <h5>Piece was uploaded!</h5> : <></>}
     </form>}
     
-    <ClothingDisplay pieces={pieces} />
+    <ClothingDisplay pieces={pieces} showDeleteButton={true} />
       
 </>
    

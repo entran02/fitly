@@ -26,9 +26,10 @@ interface Piece {
 
 interface PieceCardProps {
   pieces: Piece[];
+  showDeleteButton?: boolean;
 }
 
-const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
+const PieceCard: React.FC<PieceCardProps> = ({ pieces, showDeleteButton = false }) => {
     const { user } = AuthData();
 
     async function favoritePiece(piece_id) {
@@ -74,9 +75,11 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
             />
             <CardMedia component="img" height="194" image={`http://localhost:8000/api/uploads/${piece.image}`} alt={piece.piece_name} />
             <CardActions disableSpacing>
-              <IconButton aria-label="remove">
-                <DeleteIcon />
-              </IconButton>
+              {showDeleteButton && (
+                <IconButton aria-label="remove">
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </CardActions>
           </Card>
         </Grid>
