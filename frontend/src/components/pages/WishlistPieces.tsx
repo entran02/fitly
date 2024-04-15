@@ -18,6 +18,7 @@ export const WishlistPieces = () => {
      const hideUploadAgainButton = () => {
           setShowUpload(false)
           show();
+          setSubmitted(false);
      }
 
 const { user } = AuthData();
@@ -77,6 +78,7 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
     size: '',
     material: '',
   })
+  fetchPieces();
 
 
         // Handle success, such as displaying a success message or updating the UI
@@ -103,6 +105,15 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
           };
           fetchPieces();
         }, []);
+        const fetchPieces = async () => {
+            try {
+            const res = await axios.get(`http://localhost:8000/api/users/${user.id}/wishlist`)
+              setPieces(res.data);
+            } catch (error) {
+              console.error('Error fetching pieces:', error);
+              setPieces([]);
+            }
+          };
 
   return (
 <>
@@ -163,7 +174,7 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
      { submitted ? <h5>Piece was uploaded!</h5> : <></>}
     </form>}
     
-    <ClothingDisplay pieces={pieces}/>
+    <ClothingDisplay pieces={pieces} />
       
 </>
    
