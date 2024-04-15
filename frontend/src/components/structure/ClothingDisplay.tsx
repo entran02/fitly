@@ -33,11 +33,7 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
 
     async function favoritePiece(piece_id) {
         try {
-            console.log('hellooooo')
-            console.log(piece_id)
-            console.log(user.id)
             const res = await axios.post(`http://localhost:8000/api/users/${user.id}/wishlist`, { pieceId: piece_id })
-            console.log(res)
         } catch (error) {
             console.error("error: " +  error);
         }

@@ -75,9 +75,11 @@ async function getAllPieces(): Promise<Piece[]> {
     return pieces as Piece[];
 }
 
-async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<void> {
+async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<string> {
     const query = 'INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
+    const result = await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
+    const pieceId = result.insertId;
+    return String(pieceId);
 }
 
 
@@ -236,7 +238,9 @@ app.post('/api/upload', upload.single('image'), async (req: Request, res: Respon
   }
     const { user_id, piece_name, piece_type, color, size, material } = req.body;
 
-    await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
+    const piece_id = await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
+    
+    await addWishlistedPiece(user_id, piece_id);
     
     res.json({ message: 'Image uploaded successfully' });
 });
