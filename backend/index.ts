@@ -7,6 +7,7 @@ import cors from "cors";
 import './types.ts';
 import multer from 'multer';
 import path, { parse } from 'path';
+import Outfit from '../frontend/src/components/pages/Outfit.tsx';
 
 // set up app
 const app = express();
@@ -83,6 +84,8 @@ async function uploadPiece(user_id, piece_name, piece_type, color, size, materia
 }
 
 
+
+
 async function getWishlistedPieceFromUserId(user_id: string): Promise<Piece[]> {
     const query = `
     SELECT p.*
@@ -141,6 +144,33 @@ async function searchPieces(params: { piece_name?: string, piece_type?: string, 
     return pieces as Piece[];
 }
 
+async function createOutfit(userId: string, outfitName: string): Promise<void>{
+    const query = 'INSERT INTO outfit (user_id, outfit_name) VALUES (?, ?)';
+    await executeQuery(query, [userId, outfitName]);
+}
+
+async function addPieceToOutfit(outfitId: string, pieceId: string): Promise<void>{
+    const query = 'INSERT INTO outfit_pieces (outfit_id, piece_id) VALUES (?, ?)';
+    await executeQuery(query, [outfitId, pieceId]);
+}
+
+async function getOutfits(userId: string): Promise<Outfit[]> {
+    const query = 'SELECT * FROM outfit WHERE user_id = ?';
+    const outfits = await executeQuery(query, [userId]);
+    return outfits as Outfit[];
+}
+
+async function getOutfitById(outfitId: string): Promise<Outfit> {
+    const query = 'SELECT * FROM outfit WHERE outfit_id = ?';
+    const outfits = await executeQuery(query, [outfitId]);
+    return outfits[0] as Outfit; 
+}
+
+async function getOutfitPieces(outfitId: string): Promise<Piece[]> {
+    const query = 'SELECT p.piece_id, p.piece_name, p.piece_type, p.color, p.size, p.brand_id, p.material, p.image FROM piece AS p JOIN outfit_pieces AS op ON p.piece_id = op.piece_id WHERE op.outfit_id = ?';
+    const pieces = await executeQuery(query, [outfitId]);
+    return pieces as Piece[];
+}
 
 /**
  * API Endpoints:
@@ -339,9 +369,54 @@ app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Respo
 });
 
 
+// create an outfit
+app.post('/api/outfits/:userId', async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  const { outfitName } = req.body;
+  try {
+    const createdOutfit = await createOutfit(userId, outfitName);
+    res.status(201).json({ message: 'Outfit created' });
+  } catch (error) {
+    console.error('Error creating outfit:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
+// get list of outfits for our user
+app.get('/api/outfits/:userId', async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+    try {
+        const outfits = await getOutfits(userId);
+        res.status(201).json({ message: 'Outfit created' });
+    } catch (error) {
+        console.error('Error getting outfits:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
 
+// get outfit by id 
+app.get('/api/outfitbyid', async (req: Request, res: Response) => {
+    const { outfitId } = req.body;
+    try {
+        const outfit = await getOutfitById(outfitId);
+        res.json(outfit);
+    } catch (error) {
+        console.error('Error getting outfit:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
 
+// get outfit pieces by outfit id
+app.get('/api/getoutfitpieces', async (req: Request, res: Response) => {
+    const { outfitId } = req.body;
+    try {
+        const outfits = await getOutfitPieces(outfitId);
+        res.json(outfits);
+    } catch (error) {
+        console.error('Error getting pieces:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
 
 // test data
 

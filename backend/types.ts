@@ -20,3 +20,7 @@ interface Piece {
     image: string;
 };
 
+interface Outfit {
+    user_id: number;
+    outfit_name: string;
+}

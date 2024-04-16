@@ -19,6 +19,7 @@ CREATE TABLE user (
 
 CREATE TABLE outfit (
     outfit_id INT PRIMARY KEY AUTO_INCREMENT,
+    outfit_name VARCHAR(50),
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE SET NULL
 );
@@ -71,10 +72,10 @@ CREATE TABLE wishlisted_pieces (
     FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
-CREATE TABLE wishlisted_outifts (
-    user_id INT,
-    outfit_id INT,
-    PRIMARY KEY (user_id, outfit_id),
-    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE
-);
+-- CREATE TABLE wishlisted_outifts (
+--     user_id INT,
+--     outfit_id INT,
+--     PRIMARY KEY (user_id, outfit_id),
+--     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+--     FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE
+-- );
