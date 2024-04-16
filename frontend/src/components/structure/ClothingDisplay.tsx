@@ -39,6 +39,18 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces, showDeleteButton = false 
             console.error("error: " +  error);
         }
     }
+
+    async function deletePiece(piece_id) {
+      try {
+          const response = await axios.delete(`http://localhost:8000/api/users/${user.id}/pieces/${piece_id}`);
+          console.log(response.data);
+          alert('Piece deleted successfully');
+      } catch (error) {
+          console.error("Error deleting the piece: " + error);
+          alert('Failed to delete the piece');
+      }
+  }
+  
     // const [img, setImg] = useState(null);
 
     // async function getImg(img) {
@@ -76,7 +88,7 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces, showDeleteButton = false 
             <CardMedia component="img" height="194" image={`http://localhost:8000/api/uploads/${piece.image}`} alt={piece.piece_name} />
             <CardActions disableSpacing>
               {showDeleteButton && (
-                <IconButton aria-label="remove">
+                <IconButton aria-label="remove" onClick={() => deletePiece(piece.piece_id)}>
                   <DeleteIcon />
                 </IconButton>
               )}
