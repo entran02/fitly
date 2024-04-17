@@ -1,88 +1,136 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Avatar from '@mui/material/Avatar';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useState, useContext, useEffect } from 'react';
+import { Grid, Card, CardHeader, CardContent, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import axios from 'axios';
-import Grid from '@mui/material/Grid';
-import { useState } from 'react';
-import {AuthData} from '../../auth/AuthWrapper.tsx'
+import { AuthData } from '../../auth/AuthWrapper.tsx';
 
 interface Piece {
-    piece_id: number;
-    piece_name: string;
-    size: string;
-    user_id: number;
-    image: string;
+  piece_id: number;
+  piece_name: string;
+  size: string;
+  user_id: number;
+  image: string;
 }
 
-interface PieceCardProps {
-  pieces: Piece[];
+interface Outfit {
+  outfit_id: number;
+  outfit_name: string;
+  pieces?: Piece[];
 }
 
-const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
-    const { user } = AuthData();
+interface OutfitCardProps {
+  outfits: Outfit[];
+}
 
-    async function favoritePiece(piece_id) {
+const OutfitCard: React.FC<OutfitCardProps> = ({ outfits }) => {
+    const [newOutfitName, setNewOutfitName] = useState('');
+    const [availablePieces, setAvailablePieces] = useState<Piece[]>([]);
+    const { user } = AuthData(); // Assuming AuthData provides user details including userId
+
+    useEffect(() => {
+      const fetchPieces = async () => {
+          const response = await axios.get('http://localhost:8000/api/pieces');
+          setAvailablePieces(response.data);
+      };
+      fetchPieces();
+  }, []);
+
+  useEffect(() => {
+    const fetchPiecesForOutfits = async () => {
+      const updatedOutfits = await Promise.all(outfits.map(async (outfit) => {
         try {
-            const res = await axios.post(`http://localhost:8000/api/users/${user.id}/wishlist`, { pieceId: piece_id })
+          const response = await axios.get(`http://localhost:8000/api/getoutfitpieces`, { params: { outfitId: outfit.outfit_id } });
+          return { ...outfit, pieces: response.data };
         } catch (error) {
-            console.error("error: " +  error);
+          console.error('Error fetching pieces for outfit:', outfit.outfit_id, error);
+          return { ...outfit, pieces: [] };  // Return outfit with empty pieces on error
         }
+      }));
+      // Assuming you have a state setter for outfits:
+      // setOutfits(updatedOutfits);
+    };
+  
+    if (outfits.length > 0) {
+      fetchPiecesForOutfits();
     }
-    // const [img, setImg] = useState(null);
+  }, [outfits]);  // Dependency array ensures this effect runs when outfits change
+  
 
-    // async function getImg(img) {
-    //     const image = await axios.post(`http://localhost:8000/api/uploads/${img}`);
-    //     setImg(image);
-    // }
-  React.useEffect(() => {
-    console.log('PieceCard receiving pieces:', pieces);
-}, [pieces]);
+    const handleCreateOutfit = async () => {
+        if (user && newOutfitName.trim() !== '') {
+            try {
+                const response = await axios.post(`http://localhost:8000/api/outfits/${user.id}`, {
+                    outfitName: newOutfitName
+                });
+                console.log(response.data.message); // Or handle the new outfit display in your UI
+                setNewOutfitName(''); // Reset the input after successful creation
+            } catch (error) {
+                console.error('Error creating outfit:', error);
+                alert('Failed to create outfit'); // Display error feedback
+            }
+        }
+    };
 
-    // function favorite(piece_id) {
-    //     const f = await axios.
-    // }
-  return (
-    <Grid container spacing={2}>
-      {pieces.map((piece: Piece) => (
-        <Grid item xs={12} sm={6} md={4} key={piece.piece_id}>
-          <Card sx={{ maxWidth: 345 }}>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                  {piece.user_id}
-                </Avatar>
-              }
-              action={
-                // <div onClick={favorite(piece.piece_id)}>
-                <button className='btn' aria-label="favorite" onClick={() => favoritePiece(piece.piece_id)}>
-                  <FavoriteIcon />
-                </button>
-                // </div>
-              }
-              title={piece.piece_name}
-              subheader={piece.size}
-            />
-            <CardMedia component="img" height="194" image={`http://localhost:8000/api/uploads/${piece.image}`} alt={piece.piece_name} />
-            <CardActions disableSpacing>
-              <IconButton aria-label="remove">
-                <DeleteIcon />
-              </IconButton>
-            </CardActions>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    const addPieceToOutfit = async (outfitId: number, pieceId: number) => {
+      try {
+          const response = await axios.post(`http://localhost:8000/api/outfits/${outfitId}/add-piece`, {
+              pieceId: pieceId  // Sending `pieceId` in the body
+          });
+          console.log(response.data);
+          alert('Piece added successfully!');
+      } catch (error) {
+          console.error('Error adding piece to outfit:', error);
+          alert('Failed to add piece to outfit');
+      }
+  };  
+
+    return (
+      <div>
+          <TextField
+              label="New Outfit Name"
+              variant="outlined"
+              value={newOutfitName}
+              onChange={(e) => setNewOutfitName(e.target.value)}
+              size="small"
+          />
+          <Button onClick={handleCreateOutfit} variant="contained" color="primary">
+              Create Outfit
+          </Button>
+          <Grid container spacing={2}>
+              {outfits.map((outfit: Outfit) => (
+                  <Grid item xs={12} sm={6} md={4} key={outfit.outfit_id}>
+                      <Card sx={{ maxWidth: 345 }}>
+                          <CardHeader title={outfit.outfit_name} />
+                          <CardContent>
+                              <Typography variant="body2" color="text.secondary">
+                                  Pieces in this outfit:
+                                  <ul>
+                                  {outfit.pieces && outfit.pieces.map((piece) => (
+                                    <li key={piece.piece_id}>{piece.piece_name}</li>
+                                  ))}
+                                  {(!outfit.pieces || outfit.pieces.length === 0) && <li>No pieces found</li>}
+                                </ul>
+                                  <FormControl fullWidth size="small">
+                                      <InputLabel id="piece-select-label">Add Piece</InputLabel>
+                                      <Select
+                                        labelId="piece-select-label"
+                                        label="Add Piece"
+                                        onChange={(e) => addPieceToOutfit(outfit.outfit_id, Number(e.target.value))}
+                                      >
+                                        {availablePieces.map((piece) => (
+                                          <MenuItem key={piece.piece_id} value={piece.piece_id}>
+                                            {piece.piece_name}
+                                          </MenuItem>
+                                        ))}
+                                      </Select>
+                                  </FormControl>
+                              </Typography>
+                          </CardContent>
+                      </Card>
+                  </Grid>
+              ))}
+          </Grid>
+      </div>
   );
-}
+};
 
-export default PieceCard;
+export default OutfitCard;

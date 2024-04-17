@@ -417,7 +417,7 @@ app.get('/api/outfits/:userId', async (req: Request, res: Response) => {
     const userId = req.params.userId;
     try {
         const outfits = await getOutfits(userId);
-        res.status(201).json({ message: 'Outfit created' });
+        res.status(200).json(outfits);
     } catch (error) {
         console.error('Error getting outfits:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -425,16 +425,17 @@ app.get('/api/outfits/:userId', async (req: Request, res: Response) => {
 })
 
 // get outfit by id 
-app.get('/api/outfitbyid', async (req: Request, res: Response) => {
-    const { outfitId } = req.body;
+app.get('/api/outfits/:outfitId/pieces', async (req: Request, res: Response) => {
+    const outfitId = req.params.outfitId;
     try {
-        const outfit = await getOutfitById(outfitId);
-        res.json(outfit);
+        const pieces = await getOutfitPieces(outfitId);
+        res.json(pieces);
     } catch (error) {
-        console.error('Error getting outfit:', error);
+        console.error('Error getting pieces for outfit:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-})
+});
+
 
 // get outfit pieces by outfit id
 app.get('/api/getoutfitpieces', async (req: Request, res: Response) => {
@@ -448,6 +449,20 @@ app.get('/api/getoutfitpieces', async (req: Request, res: Response) => {
     }
 })
 
+// Endpoint to add a piece to an outfit
+app.post('/api/outfits/:outfitId/add-piece', async (req: Request, res: Response) => {
+    const { outfitId } = req.params;
+    const { pieceId } = req.body; // Expecting `pieceId` to be in the request body
+
+    try {
+        await addPieceToOutfit(outfitId, pieceId); // This function should handle the database operations
+        res.status(200).json({ message: 'Piece added to outfit successfully' });
+    } catch (error) {
+        console.error('Error adding piece to outfit:', error);
+        res.status(500).json({ error: 'Failed to add piece to outfit', details: error.message });
+    }
+});
+
 // test data
 
 // testing to make sure that a piece gets uploaded
@@ -455,8 +470,8 @@ const test1 = await getUserByUsername('test1');
 if (!test1) {
     console.error(await createUser("test1", "test1"))
 }
-//console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
-//console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
 // console.error(await uploadPiece(1, 'shirt2', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt3', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt4', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
