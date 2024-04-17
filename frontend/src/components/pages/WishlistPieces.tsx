@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import PieceCard from "../structure/ClothingDisplay.tsx";
 import axios from "axios";
 import {AuthData} from '../../auth/AuthWrapper.tsx'
 import { buttonBaseClasses } from "@mui/material";

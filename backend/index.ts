@@ -51,40 +51,79 @@ async function getAllUsers(): Promise<User[]> {
     const query = 'SELECT * FROM user';
     const users = await executeQuery(query);
     return users as User[];
+    /* try {
+        const [rows] = await database.query('CALL GetAllUsers()');
+        return rows as User[];
+    } catch (error) {
+        console.error('Error fetching all users:', error);
+        throw error;
+    } */
 }
 
 async function getUserById(user_id: number): Promise<User | null> {
     const query = 'SELECT * FROM user WHERE user_id = ?';
     const users = await executeQuery(query, [user_id]);
     return users as User;
+    /* if (!Number.isInteger(user_id)) {
+        throw new Error('Invalid user ID. User ID must be an integer.');
+    }
+
+    try {
+        const [results] = await database.query('CALL GetUserById(?)', [user_id]);
+        const rows = results[0];
+
+        if (rows.length === 0) {
+            console.log('No user found for ID:', user_id);
+            return null;
+        }
+
+        return rows[0] as User;
+
+    } catch (error) {
+        console.error('Error fetching user by ID:', user_id, error);
+        throw error;
+    } */
 }
 
 async function getUserByUsername(username: string): Promise<User | null> {
-    const query = 'SELECT * FROM user WHERE username = ?';
-    const user = await executeQuery(query, [username]);
-    return user[0] as User;
+    try {
+        const [results] = await database.query('CALL GetUserByUsername(?)', [username]);
+        const user = results[0][0];
+        return user as User;
+    } catch (error) {
+        console.error('Error fetching user by username:', error);
+        throw error;
+    }
 }
 
 async function createUser(username: string, password: string): Promise<void> {
-    const query = 'INSERT INTO user (username, password, size_preference) VALUES (?, ?, ?)';
-    await executeQuery(query, [username, password, '']);
+    try {
+        await database.query('CALL CreateUser(?, ?, ?)', [username, password, '']);
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
 }
 
 async function getAllPieces(): Promise<Piece[]> {
-    const query = 'SELECT * FROM piece';
-    const pieces = await executeQuery(query);
-    return pieces as Piece[];
+    try {
+        const [results] = await database.query('CALL GetAllPieces()');
+        return results[0] as Piece[];
+    } catch (error) {
+        console.error('Error fetching all pieces:', error);
+        throw error;
+    }
 }
 
 async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<string> {
-    const query = 'INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const result = await executeQuery(query, [user_id, piece_name, piece_type, color, size, material, image])
-    const pieceId = result.insertId;
-    return String(pieceId);
+    try {
+        const [results] = await database.query('CALL UploadPiece(?, ?, ?, ?, ?, ?, ?)', [user_id, piece_name, piece_type, color, size, material, image]);
+        return results[0][0].pieceId;
+    } catch (error) {
+        console.error('Error uploading piece:', error);
+        throw error;
+    }
 }
-
-
-
 
 async function getWishlistedPieceFromUserId(user_id: string): Promise<Piece[]> {
     const query = `
@@ -95,17 +134,37 @@ async function getWishlistedPieceFromUserId(user_id: string): Promise<Piece[]> {
     `;
     const pieces = await executeQuery(query, [user_id]);
     return pieces as Piece[];
+    /* try {
+        const [results] = await database.query('CALL GetWishlistedPiecesByUserId(?)', [user_id]);
+        return results[0] as Piece[];
+    } catch (error) {
+        console.error('Error fetching wishlisted pieces for user:', user_id, error);
+        throw new Error('Failed to fetch wishlisted pieces');
+    } */
 }
 
 async function addWishlistedPiece(userId: string, pieceId: string): Promise<void> {
-  const query = 'INSERT INTO wishlisted_pieces (user_id, piece_id) VALUES (?, ?);';
+    const query = 'INSERT INTO wishlisted_pieces (user_id, piece_id) VALUES (?, ?);';
   await executeQuery(query, [userId, pieceId]);
+    /* try {
+        await database.query('CALL AddWishlistedPiece(?, ?)', [userId, pieceId]);
+    } catch (error) {
+        console.error('Error adding piece to wishlist:', error);
+        throw new Error('Failed to add piece to wishlist');
+    } */
 }
 
 async function getPieceByUserIdAndPieceId(userId: string, pieceId: string): Promise<Piece | null> {
-  const query = 'SELECT * FROM wishlisted_pieces WHERE user_id = ? AND piece_id = ?;';
+    const query = 'SELECT * FROM wishlisted_pieces WHERE user_id = ? AND piece_id = ?;';
   const result = await executeQuery(query, [userId, pieceId]);
   return result[0] as Piece | null;
+    /* try {
+        const [results] = await database.query('CALL GetPieceByUserIdAndPieceId(?, ?)', [userId, pieceId]);
+        return results[0] as Piece;
+    } catch (error) {
+        console.error('Error fetching piece by user ID and piece ID:', error);
+        throw new Error('Failed to fetch piece');
+    } */
 }
 
 async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
@@ -145,32 +204,53 @@ async function searchPieces(params: { piece_name?: string, piece_type?: string, 
 }
 
 async function createOutfit(userId: string, outfitName: string): Promise<void>{
-    const query = 'INSERT INTO outfit (user_id, outfit_name) VALUES (?, ?)';
-    await executeQuery(query, [userId, outfitName]);
+    try {
+        await database.query('CALL CreateOutfit(?, ?)', [userId, outfitName]);
+    } catch (error) {
+        console.error('Error creating outfit:', error);
+        throw new Error('Failed to create outfit');
+    }
 }
 
 async function addPieceToOutfit(outfitId: string, pieceId: string): Promise<void>{
-    const query = 'INSERT INTO outfit_pieces (outfit_id, piece_id) VALUES (?, ?)';
-    await executeQuery(query, [outfitId, pieceId]);
+    try {
+        await database.query('CALL AddPieceToOutfit(?, ?)', [outfitId, pieceId]);
+    } catch (error) {
+        console.error('Error adding piece to outfit:', error);
+        throw new Error('Failed to add piece to outfit');
+    }
 }
 
 async function getOutfits(userId: string): Promise<Outfit[]> {
-    const query = 'SELECT * FROM outfit WHERE user_id = ?';
-    const outfits = await executeQuery(query, [userId]);
-    return outfits as Outfit[];
+    try {
+        const [results] = await database.query('CALL GetOutfitsByUserId(?)', [userId]);
+        return results as Outfit[];
+    } catch (error) {
+        console.error('Error fetching outfits for user:', userId, error);
+        throw new Error('Failed to fetch outfits');
+    }
 }
 
 async function getOutfitById(outfitId: string): Promise<Outfit> {
-    const query = 'SELECT * FROM outfit WHERE outfit_id = ?';
-    const outfits = await executeQuery(query, [outfitId]);
-    return outfits[0] as Outfit; 
+    try {
+        const [results] = await database.query('CALL GetOutfitById(?)', [outfitId]);
+        return results[0] as Outfit;
+    } catch (error) {
+        console.error('Error fetching outfit by ID:', outfitId, error);
+        throw new Error('Failed to fetch outfit');
+    }
 }
 
 async function getOutfitPieces(outfitId: string): Promise<Piece[]> {
-    const query = 'SELECT p.piece_id, p.piece_name, p.piece_type, p.color, p.size, p.brand_id, p.material, p.image FROM piece AS p JOIN outfit_pieces AS op ON p.piece_id = op.piece_id WHERE op.outfit_id = ?';
-    const pieces = await executeQuery(query, [outfitId]);
-    return pieces as Piece[];
+    try {
+        const [results] = await database.query('CALL GetOutfitPiecesByOutfitId(?)', [outfitId]);
+        return results as Piece[];
+    } catch (error) {
+        console.error('Error fetching pieces for outfit:', outfitId, error);
+        throw new Error('Failed to fetch outfit pieces');
+    }
 }
+
 
 /**
  * API Endpoints:
