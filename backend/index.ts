@@ -48,41 +48,23 @@ async function executeQuery(query: string, values: any[] = []): Promise<any> {
  * @returns User[]
  */
 async function getAllUsers(): Promise<User[]> {
-    const query = 'SELECT * FROM user';
-    const users = await executeQuery(query);
-    return users as User[];
-    /* try {
+    try {
         const [rows] = await database.query('CALL GetAllUsers()');
-        return rows as User[];
+        return rows[0] as User[];
     } catch (error) {
         console.error('Error fetching all users:', error);
         throw error;
-    } */
+    }
 }
 
 async function getUserById(user_id: number): Promise<User | null> {
-    const query = 'SELECT * FROM user WHERE user_id = ?';
-    const users = await executeQuery(query, [user_id]);
-    return users as User;
-    /* if (!Number.isInteger(user_id)) {
-        throw new Error('Invalid user ID. User ID must be an integer.');
-    }
-
     try {
         const [results] = await database.query('CALL GetUserById(?)', [user_id]);
-        const rows = results[0];
-
-        if (rows.length === 0) {
-            console.log('No user found for ID:', user_id);
-            return null;
-        }
-
-        return rows[0] as User;
-
+        return results[0][0] as User;
     } catch (error) {
         console.error('Error fetching user by ID:', user_id, error);
         throw error;
-    } */
+    }
 }
 
 async function getUserByUsername(username: string): Promise<User | null> {
@@ -126,81 +108,49 @@ async function uploadPiece(user_id, piece_name, piece_type, color, size, materia
 }
 
 async function getWishlistedPieceFromUserId(user_id: string): Promise<Piece[]> {
-    const query = `
-    SELECT p.*
-    FROM piece p
-    INNER JOIN wishlisted_pieces wp ON p.piece_id = wp.piece_id
-    WHERE wp.user_id = ?;
-    `;
-    const pieces = await executeQuery(query, [user_id]);
-    return pieces as Piece[];
-    /* try {
+    try {
         const [results] = await database.query('CALL GetWishlistedPiecesByUserId(?)', [user_id]);
         return results[0] as Piece[];
     } catch (error) {
         console.error('Error fetching wishlisted pieces for user:', user_id, error);
         throw new Error('Failed to fetch wishlisted pieces');
-    } */
+    }
 }
 
 async function addWishlistedPiece(userId: string, pieceId: string): Promise<void> {
-    const query = 'INSERT INTO wishlisted_pieces (user_id, piece_id) VALUES (?, ?);';
-  await executeQuery(query, [userId, pieceId]);
-    /* try {
+    try {
         await database.query('CALL AddWishlistedPiece(?, ?)', [userId, pieceId]);
     } catch (error) {
         console.error('Error adding piece to wishlist:', error);
         throw new Error('Failed to add piece to wishlist');
-    } */
+    }
 }
 
 async function getPieceByUserIdAndPieceId(userId: string, pieceId: string): Promise<Piece | null> {
-    const query = 'SELECT * FROM wishlisted_pieces WHERE user_id = ? AND piece_id = ?;';
-  const result = await executeQuery(query, [userId, pieceId]);
-  return result[0] as Piece | null;
-    /* try {
+    try {
         const [results] = await database.query('CALL GetPieceByUserIdAndPieceId(?, ?)', [userId, pieceId]);
-        return results[0] as Piece;
+        return results[0][0] as Piece;
     } catch (error) {
         console.error('Error fetching piece by user ID and piece ID:', error);
         throw new Error('Failed to fetch piece');
-    } */
+    }
 }
 
 async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
-    let query = `
-        SELECT p.*, b.brand_name FROM piece p
-        LEFT JOIN brand b ON p.brand_id = b.brand_id
-        WHERE TRUE`;
-    let values: string[] = [];
-
-    if (params.piece_name) {
-        query += ' AND p.piece_name LIKE ?';
-        values.push(`%${params.piece_name}%`);
+    try {
+        const [results] = await database.query('CALL SearchPieces(?, ?, ?, ?, ?, ?)', [
+            params.piece_name || null,
+            params.piece_type || null,
+            params.color || null,
+            params.size || null,
+            params.brand_name || null,
+            params.material || null
+        ]);
+        return results[0];
+    } catch (error) {
+        console.error('Error searching pieces:', error);
+        throw error;
     }
-    if (params.piece_type) {
-        query += ' AND p.piece_type LIKE ?';
-        values.push(`%${params.piece_type}%`);
-    }
-    if (params.color) {
-        query += ' AND p.color LIKE ?';
-        values.push(`%${params.color}%`);
-    }
-    if (params.size) {
-        query += ' AND p.size LIKE ?';
-        values.push(`%${params.size}%`);
-    }
-    if (params.brand_name) {
-        query += ' AND b.brand_name LIKE ?';
-        values.push(`%${params.brand_name}%`);
-    }
-    if (params.material) {
-        query += ' AND p.material LIKE ?';
-        values.push(`%${params.material}%`);
-    }
-
-    const pieces = await executeQuery(query, values);
-    return pieces as Piece[];
 }
 
 async function createOutfit(userId: string, outfitName: string): Promise<void>{

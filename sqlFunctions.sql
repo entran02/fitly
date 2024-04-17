@@ -145,4 +145,50 @@ END$$
 
 DELIMITER ;
 
+--
+DELIMITER $$
+
+CREATE PROCEDURE SearchPieces(
+    IN _piece_name VARCHAR(255),
+    IN _piece_type VARCHAR(255),
+    IN _color VARCHAR(255),
+    IN _size VARCHAR(255),
+    IN _brand_name VARCHAR(255),
+    IN _material VARCHAR(255)
+)
+BEGIN
+    SET @sql = 'SELECT p.*, b.brand_name FROM piece p LEFT JOIN brand b ON p.brand_id = b.brand_id WHERE 1=1';
+
+    IF _piece_name IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND p.piece_name LIKE ', CONCAT('\'%', _piece_name, '%\''));
+    END IF;
+
+    IF _piece_type IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND p.piece_type LIKE ', CONCAT('\'%', _piece_type, '%\''));
+    END IF;
+
+    IF _color IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND p.color LIKE ', CONCAT('\'%', _color, '%\''));
+    END IF;
+
+    IF _size IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND p.size LIKE ', CONCAT('\'%', _size, '%\''));
+    END IF;
+
+    IF _brand_name IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND b.brand_name LIKE ', CONCAT('\'%', _brand_name, '%\''));
+    END IF;
+
+    IF _material IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND p.material LIKE ', CONCAT('\'%', _material, '%\''));
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
+DELIMITER ;
+
+
 
