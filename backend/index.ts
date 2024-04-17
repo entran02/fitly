@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import cors from "cors";
 import './types.ts';
 import multer from 'multer';
-import path from 'path';
+import path, { parse } from 'path';
 import Outfit from '../frontend/src/components/pages/Outfit.tsx';
 
 // set up app
@@ -407,6 +407,47 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error executing search' });
     }
 });
+
+app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  const userIdInt = parseInt(userId);
+  const pieceId = req.params.pieceId;
+
+  try {
+    // Check if the piece belongs to the current user
+    const piece = await getPieceByUserIdAndPieceId(userId, pieceId);
+
+    // Tests to see if the piece and user IDs are being fetched correctly
+    console.log('Fetched Piece:', piece);
+    if (piece) {
+        console.log('Piece User ID:', piece.user_id, 'Type:', typeof piece.user_id);
+    } else {
+        console.log('No piece found for given IDs');
+    }
+    console.log('Request User ID:', userIdInt, 'Type:', typeof userIdInt);
+
+    if (!piece) {
+      return res.status(404).json({ error: 'Piece not found or does not belong to the user' });
+    }
+
+    // If the piece belongs to the user, delete it from the database
+    if (piece.user_id === userIdInt) {
+      // Delete the piece from the database
+      const deletePieceQuery = 'DELETE FROM piece WHERE piece_id = ?';
+      await executeQuery(deletePieceQuery, [pieceId]);
+      res.status(200).json({ message: 'Piece deleted successfully' });
+    } else {
+      // If the piece does not belong to the user, remove it from the wishlist
+      const deleteWishlistPieceQuery = 'DELETE FROM wishlisted_pieces WHERE user_id = ? AND piece_id = ?';
+      await executeQuery(deleteWishlistPieceQuery, [userId, pieceId]);
+      res.status(200).json({ message: 'Piece removed from wishlist successfully' });
+    }
+  } catch (error) {
+    console.error('Error deleting piece:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 // create an outfit
 app.post('/api/outfits/:userId', async (req: Request, res: Response) => {
