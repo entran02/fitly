@@ -26,9 +26,10 @@ interface Piece {
 
 interface PieceCardProps {
   pieces: Piece[];
+  showDeleteButton?: boolean;
 }
 
-const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
+const PieceCard: React.FC<PieceCardProps> = ({ pieces, showDeleteButton = false }) => {
     const { user } = AuthData();
 
     async function favoritePiece(piece_id) {
@@ -38,6 +39,18 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
             console.error("error: " +  error);
         }
     }
+
+    async function deletePiece(piece_id) {
+      try {
+          const response = await axios.delete(`http://localhost:8000/api/users/${user.id}/pieces/${piece_id}`);
+          console.log(response.data);
+          alert('Piece deleted successfully');
+      } catch (error) {
+          console.error("Error deleting the piece: " + error);
+          alert('Failed to delete the piece');
+      }
+  }
+  
     // const [img, setImg] = useState(null);
 
     // async function getImg(img) {
@@ -74,9 +87,11 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces }) => {
             />
             <CardMedia component="img" height="194" image={`http://localhost:8000/api/uploads/${piece.image}`} alt={piece.piece_name} />
             <CardActions disableSpacing>
-              <IconButton aria-label="remove">
-                <DeleteIcon />
-              </IconButton>
+              {showDeleteButton && (
+                <IconButton aria-label="remove" onClick={() => deletePiece(piece.piece_id)}>
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </CardActions>
           </Card>
         </Grid>
