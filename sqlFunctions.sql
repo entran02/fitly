@@ -1,3 +1,4 @@
+-- PROCEDURES
 -- GetAllUsers
 DELIMITER $$
 
@@ -189,6 +190,70 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- TRIGGERS
+-- ensures outfit pieces are deleted when a piece is deleted
+DELIMITER $$
+CREATE TRIGGER BeforeDeletePiece
+BEFORE DELETE ON piece FOR EACH ROW
+BEGIN
+  DELETE FROM outfit_pieces WHERE piece_id = OLD.piece_id;
+END$$
+DELIMITER ;
+
+-- log piece deletion
+CREATE TABLE deletion_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    piece_id INT,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER $$
+CREATE TRIGGER LogDeletePiece
+AFTER DELETE ON piece FOR EACH ROW
+BEGIN
+  INSERT INTO deletion_log (piece_id) VALUES (OLD.piece_id);
+END$$
+DELIMITER ;
+
+-- EVENTS
+SET GLOBAL event_scheduler = ON;
+
+-- cleans up brands that are not assigned to any pieces at all weekly
+DELIMITER $$
+CREATE EVENT CleanUpBrands
+ON SCHEDULE EVERY 1 WEEK STARTS '2024-04-20 00:00:00'
+DO
+  DELETE FROM brand WHERE brand_id NOT IN (SELECT DISTINCT brand_id FROM piece WHERE brand_id IS NOT NULL);
+END$$
+DELIMITER ;
+
+-- cleans duplicate outfits every week
+DELIMITER $$
+CREATE EVENT CleanUpDuplicateOutfitsByUserAndPieces
+ON SCHEDULE EVERY 1 DAY STARTS '2024-04-20 00:00:00'
+DO
+BEGIN
+    -- temp table to check outfits that arent with same user and pieces
+    CREATE TEMPORARY TABLE IF NOT EXISTS TempUniqueOutfits AS
+        SELECT MIN(o.outfit_id) AS keep_id, o.user_id, o.outfit_name,
+               GROUP_CONCAT(p.piece_id ORDER BY p.piece_id) AS pieces_signature
+        FROM outfit o
+        JOIN outfit_pieces op ON o.outfit_id = op.outfit_id
+        JOIN piece p ON op.piece_id = p.piece_id
+        GROUP BY o.user_id, o.outfit_name, pieces_signature;
+
+    -- delete all non unique outfits
+    DELETE FROM outfit
+    WHERE outfit_id NOT IN (SELECT keep_id FROM TempUniqueOutfits);
+
+    DROP TEMPORARY TABLE IF EXISTS TempUniqueOutfits;
+END$$
+DELIMITER ;
+
+
+
+
 
 
 
