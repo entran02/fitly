@@ -11,18 +11,17 @@ export const WishlistOutfits = () => {
         if (user && user.id) {
             const fetchOutfits = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:8000/api/outfits/${user.id}`); // Using template literals to include the userId
+                    const response = await axios.get(`http://localhost:8000/api/outfits/${user.id}`);
                     console.log(response.data[0]);
-                    setOutfits(response.data[0]); // Assuming the server returns the array of outfits directly
+                    setOutfits(response.data[0]);
                 } catch (error) {
                     console.error("Failed to fetch wishlist outfits:", error);
-                    // Optionally handle errors, e.g., show a user-friendly message
                 }
             };
 
             fetchOutfits();
         }
-    }, [user]); // Depend on user to re-fetch when user changes
+    }, [user]);
 
     return (
         <div className="page">

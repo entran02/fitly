@@ -61,9 +61,6 @@ const PieceCard: React.FC<PieceCardProps> = ({ pieces, showDeleteButton = false 
     console.log('PieceCard receiving pieces:', pieces);
 }, [pieces]);
 
-    // function favorite(piece_id) {
-    //     const f = await axios.
-    // }
   return (
     <Grid container spacing={2}>
       {pieces.map((piece: Piece) => (
