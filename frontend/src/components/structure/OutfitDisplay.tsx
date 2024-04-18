@@ -37,7 +37,7 @@ const OutfitCard: React.FC<OutfitCardProps> = ({ outfits }) => {
   const [newOutfitName, setNewOutfitName] = useState("");
   const [availablePieces, setAvailablePieces] = useState<Piece[]>([]);
   const [updatedOutfits, setUpdatedOutfits] = useState(outfits);
-  const { user } = AuthData(); // Assuming AuthData provides user details including userId
+  const { user } = AuthData();
 
   useEffect(() => {
     const fetchPieces = async () => {
@@ -63,19 +63,17 @@ const OutfitCard: React.FC<OutfitCardProps> = ({ outfits }) => {
               outfit.outfit_id,
               error
             );
-            return { ...outfit, pieces: [] }; // Return outfit with empty pieces on error
+            return { ...outfit, pieces: [] };
           }
         })
       );
-      // Assuming you have a state setter for outfits:
-      // setOutfits(updatedOutfits);
       setUpdatedOutfits(updatedOutfits);
     };
 
     if (outfits.length > 0) {
       fetchPiecesForOutfits();
     }
-  }, [outfits]); // Dependency array ensures this effect runs when outfits change
+  }, [outfits]);
 
   const handleCreateOutfit = async () => {
     if (user && newOutfitName.trim() !== "") {
@@ -86,11 +84,11 @@ const OutfitCard: React.FC<OutfitCardProps> = ({ outfits }) => {
             outfitName: newOutfitName,
           }
         );
-        console.log(response.data.message); // Or handle the new outfit display in your UI
-        setNewOutfitName(""); // Reset the input after successful creation
+        console.log(response.data.message);
+        setNewOutfitName("");
       } catch (error) {
         console.error("Error creating outfit:", error);
-        alert("Failed to create outfit"); // Display error feedback
+        alert("Failed to create outfit"); 
       }
     }
   };
@@ -100,7 +98,7 @@ const OutfitCard: React.FC<OutfitCardProps> = ({ outfits }) => {
       const response = await axios.post(
         `http://localhost:8000/api/outfits/${outfitId}/add-piece`,
         {
-          pieceId: pieceId, // Sending `pieceId` in the body
+          pieceId: pieceId,
         }
       );
       console.log(response.data);

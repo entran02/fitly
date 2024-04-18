@@ -65,7 +65,6 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
       formDataToSend.append('style', formData.style);
 
       try {
-          //    const response = await axios.post('http://localhost:8000/api/upload', {user_id: formData.user_id, piece_name: formData.piece_name, piece_type: formData.piece_type, color: formData.color, size: formData.size, material: formData.material, file: selectedFile});
 
           const response = await axios.post('http://localhost:8000/api/upload', formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -85,13 +84,10 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
   })
   fetchPieces();
 
-
-        // Handle success, such as displaying a success message or updating the UI
       } catch (error) {
         console.error('Error uploading piece:', error);
         setSubmitted(false);
 
-        // Handle error, such as displaying an error message or taking appropriate action
       }
     }
   };
