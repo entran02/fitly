@@ -249,10 +249,10 @@ async function getOutfitById(outfitId: string): Promise<Outfit> {
 
 async function getOutfitPieces(outfitId: string): Promise<Piece[]> {
   try {
-    const [results] = await database.query(
-      "CALL GetOutfitPiecesByOutfitId(?)",
-      [outfitId]
-    );
+    const results = await database.query("CALL GetOutfitPiecesByOutfitId(?)", [
+      outfitId,
+    ]);
+    console.error(JSON.stringify(results));
     return results as Piece[];
   } catch (error) {
     console.error("Error fetching pieces for outfit:", outfitId, error);
@@ -515,31 +515,35 @@ app.get("/api/outfits/:userId", async (req: Request, res: Response) => {
 });
 
 // get outfit by id
+// app.get(
+//   "/api/outfits/:outfitId/pieces",
+//   async (req: Request, res: Response) => {
+//     const outfitId = req.params.outfitId;
+//     try {
+//       const pieces = await getOutfitPieces("1");
+//       res.json(pieces);
+//     } catch (error) {
+//       console.error("Error getting pieces for outfit:", error);
+//       res.status(500).json({ error: "Internal server error" });
+//     }
+//   }
+// );
+
+// get outfit pieces by outfit id
 app.get(
-  "/api/outfits/:outfitId/pieces",
+  "/api/getoutfitpieces/:outfitId",
   async (req: Request, res: Response) => {
     const outfitId = req.params.outfitId;
+    console.error("outfit id:" + outfitId);
     try {
-      const pieces = await getOutfitPieces(outfitId);
-      res.json(pieces);
+      const outfits = await getOutfitPieces(outfitId);
+      res.json(outfits);
     } catch (error) {
-      console.error("Error getting pieces for outfit:", error);
+      console.error("Error getting pieces:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
 );
-
-// get outfit pieces by outfit id
-app.get("/api/getoutfitpieces", async (req: Request, res: Response) => {
-  const { outfitId } = req.body;
-  try {
-    const outfits = await getOutfitPieces(outfitId);
-    res.json(outfits);
-  } catch (error) {
-    console.error("Error getting pieces:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 // Endpoint to add a piece to an outfit
 app.post(
@@ -553,12 +557,10 @@ app.post(
       res.status(200).json({ message: "Piece added to outfit successfully" });
     } catch (error) {
       console.error("Error adding piece to outfit:", error);
-      res
-        .status(500)
-        .json({
-          error: "Failed to add piece to outfit",
-          details: error.message,
-        });
+      res.status(500).json({
+        error: "Failed to add piece to outfit",
+        details: error.message,
+      });
     }
   }
 );
