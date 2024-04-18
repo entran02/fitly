@@ -97,9 +97,9 @@ async function getAllPieces(): Promise<Piece[]> {
     }
 }
 
-async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<string> {
+async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image, brand, style): Promise<string> {
     try {
-        const [results] = await database.query('CALL UploadPiece(?, ?, ?, ?, ?, ?, ?)', [user_id, piece_name, piece_type, color, size, material, image]);
+        const [results] = await database.query('CALL UploadPiece(?, ?, ?, ?, ?, ?, ?, ?, ?)', [user_id, piece_name, piece_type, color, size, material, image, brand, style]);
         return results[0][0].pieceId;
     } catch (error) {
         console.error('Error uploading piece:', error);
@@ -297,9 +297,9 @@ app.post('/api/upload', upload.single('image'), async (req: Request, res: Respon
     return res.status(400).send('No file uploaded.');
     
   }
-    const { user_id, piece_name, piece_type, color, size, material } = req.body;
+    const { user_id, piece_name, piece_type, color, size, material, brand, style } = req.body;
 
-    const piece_id = await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
+    const piece_id = await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename, brand, style);
     
     await addWishlistedPiece(user_id, piece_id);
     
@@ -472,8 +472,8 @@ const test1 = await getUserByUsername('test1');
 if (!test1) {
     console.error(await createUser("test1", "test1"))
 }
-console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
-console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp', 'lv', 'casual'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp', 'lv', 'casual'));
 // console.error(await uploadPiece(1, 'shirt2', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt3', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt4', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
