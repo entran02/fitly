@@ -30,6 +30,8 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
     color: '',
     size: '',
     material: '',
+    brand: '',
+    style: '',
   });
   const [submitted, setSubmitted] = useState(false);
 
@@ -59,6 +61,8 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
       formDataToSend.append('color', formData.color);
       formDataToSend.append('size', formData.size);
       formDataToSend.append('material', formData.material);
+      formDataToSend.append('brand', formData.brand);
+      formDataToSend.append('style', formData.style);
 
       try {
           //    const response = await axios.post('http://localhost:8000/api/upload', {user_id: formData.user_id, piece_name: formData.piece_name, piece_type: formData.piece_type, color: formData.color, size: formData.size, material: formData.material, file: selectedFile});
@@ -76,6 +80,8 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
     color: '',
     size: '',
     material: '',
+    brand: '',
+    style: '',
   })
   fetchPieces();
 
@@ -160,6 +166,22 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
                  name="material"
                  placeholder="Material"
                  value={formData.material}
+                 onChange={handleInputChange}
+                 required />
+       </li><li>
+            <input
+                 type="text"
+                 name="brand"
+                 placeholder="Brand"
+                 value={formData.brand}
+                 onChange={handleInputChange}
+                 required />
+       </li><li>
+            <input
+                 type="text"
+                 name="style"
+                 placeholder="Style"
+                 value={formData.style}
                  onChange={handleInputChange}
                  required />
        </li></> : null }

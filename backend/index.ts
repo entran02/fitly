@@ -97,9 +97,9 @@ async function getAllPieces(): Promise<Piece[]> {
     }
 }
 
-async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image): Promise<string> {
+async function uploadPiece(user_id, piece_name, piece_type, color, size, material, image, brand, style): Promise<string> {
     try {
-        const [results] = await database.query('CALL UploadPiece(?, ?, ?, ?, ?, ?, ?)', [user_id, piece_name, piece_type, color, size, material, image]);
+        const [results] = await database.query('CALL UploadPiece(?, ?, ?, ?, ?, ?, ?, ?, ?)', [user_id, piece_name, piece_type, color, size, material, image, brand, style]);
         return results[0][0].pieceId;
     } catch (error) {
         console.error('Error uploading piece:', error);
@@ -136,15 +136,16 @@ async function getPieceByUserIdAndPieceId(userId: string, pieceId: string): Prom
     }
 }
 
-async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
+async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string, style_name?: string }): Promise<Piece[]> {
     try {
-        const [results] = await database.query('CALL SearchPieces(?, ?, ?, ?, ?, ?)', [
+        const [results] = await database.query('CALL SearchPieces(?, ?, ?, ?, ?, ?, ?)', [
             params.piece_name || null,
             params.piece_type || null,
             params.color || null,
             params.size || null,
             params.brand_name || null,
-            params.material || null
+            params.material || null,
+            params.style_name || null
         ]);
         return results[0];
     } catch (error) {
@@ -296,9 +297,9 @@ app.post('/api/upload', upload.single('image'), async (req: Request, res: Respon
     return res.status(400).send('No file uploaded.');
     
   }
-    const { user_id, piece_name, piece_type, color, size, material } = req.body;
+    const { user_id, piece_name, piece_type, color, size, material, brand, style } = req.body;
 
-    const piece_id = await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename);
+    const piece_id = await uploadPiece(user_id, piece_name, piece_type, color, size, material, req.file.filename, brand, style);
     
     await addWishlistedPiece(user_id, piece_id);
     
@@ -340,7 +341,6 @@ app.post('/api/users/:userId/wishlist', async (req: Request, res: Response) => {
 
 
 app.get('/api/search/pieces', async (req: Request, res: Response) => {
-    // Collect search parameters from the query string
     const searchParams = {
         piece_name: req.query.piece_name as string | undefined,
         piece_type: req.query.piece_type as string | undefined,
@@ -348,6 +348,7 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
         size: req.query.size as string | undefined,
         brand_name: req.query.brand_name as string | undefined,
         material: req.query.material as string | undefined,
+        style_name: req.query.style_name as string | undefined
     };
 
     try {
@@ -358,6 +359,7 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
     }
 });
 
+
 app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Response) => {
   const userId = req.params.userId;
   const userIdInt = parseInt(userId);
@@ -367,7 +369,7 @@ app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Respo
     // Check if the piece belongs to the current user
     const piece = await getPieceByUserIdAndPieceId(userId, pieceId);
 
-    // Tests to see if the piece and user IDs are being fetched correctly
+    // tests to see if the piece and user IDs are being fetched correctly
     console.log('Fetched Piece:', piece);
     if (piece) {
         console.log('Piece User ID:', piece.user_id, 'Type:', typeof piece.user_id);
@@ -470,8 +472,8 @@ const test1 = await getUserByUsername('test1');
 if (!test1) {
     console.error(await createUser("test1", "test1"))
 }
-console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
-console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp', 'lv', 'casual'));
+console.error(await uploadPiece(1, 'shirt1', 'shirt', 'red', 'm', 'cotton', 'image-1713169388442-544573682.webp', 'lv', 'casual'));
 // console.error(await uploadPiece(1, 'shirt2', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt3', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));
 // console.error(await uploadPiece(1, 'shirt4', 'shirt', 'red', 'm', 'cotton', 'https://media.istockphoto.com/id/471188329/photo/plain-red-tee-shirt-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=h1n990JR40ZFbPRDpxKppFziIWrisGcE_d9OqkLVAC4='));

@@ -22,7 +22,6 @@ export const Home = () => {
 
      const fetchSearchResults = async (searchParams) => {
           try{
-               // Construct the query parameters object dynamically based on searchParams
                const response = await axios.get('http://localhost:8000/api/search/pieces', {
                params: searchParams
                });

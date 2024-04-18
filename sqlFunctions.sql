@@ -52,13 +52,50 @@ DELIMITER ;
 -- UploadPiece
 DELIMITER $$
 
-CREATE PROCEDURE UploadPiece(IN _user_id INT, IN _piece_name VARCHAR(255), IN _piece_type VARCHAR(255), IN _color VARCHAR(255), IN _size VARCHAR(255), IN _material VARCHAR(255), IN _image VARCHAR(255))
+CREATE PROCEDURE UploadPiece(
+    IN _user_id INT,
+    IN _piece_name VARCHAR(255),
+    IN _piece_type VARCHAR(255),
+    IN _color VARCHAR(255),
+    IN _size VARCHAR(255),
+    IN _material VARCHAR(255),
+    IN _image VARCHAR(255),
+    IN _brand_name VARCHAR(255),
+    IN _style_name VARCHAR(255)
+)
 BEGIN
-    INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, image) VALUES (_user_id, _piece_name, _piece_type, _color, _size, _material, _image);
-    SELECT LAST_INSERT_ID() AS pieceId;
+    DECLARE _brand_id INT;
+    DECLARE _style_id INT;
+    DECLARE _piece_id INT;
+
+    -- Check if brand exists, if not, create new
+    SELECT brand_id INTO _brand_id FROM brand WHERE brand_name = _brand_name LIMIT 1;
+
+    IF _brand_id IS NULL THEN
+        INSERT INTO brand (brand_name) VALUES (_brand_name);
+        SET _brand_id = LAST_INSERT_ID();
+    END IF;
+
+    -- Check if style exists, if not, create new
+    SELECT style_id INTO _style_id FROM style WHERE style_name = _style_name LIMIT 1;
+
+    IF _style_id IS NULL THEN
+        INSERT INTO style (style_name) VALUES (_style_name);
+        SET _style_id = LAST_INSERT_ID();
+    END IF;
+
+    INSERT INTO piece (user_id, piece_name, piece_type, color, size, material, brand_id, image) 
+    VALUES (_user_id, _piece_name, _piece_type, _color, _size, _material, _brand_id, _image);
+
+    SET _piece_id = LAST_INSERT_ID();
+
+    INSERT INTO piece_style (piece_id, style_id) VALUES (_piece_id, _style_id);
+
+    SELECT _piece_id AS pieceId;
 END$$
 
 DELIMITER ;
+
 
 --
 DELIMITER $$
@@ -155,10 +192,11 @@ CREATE PROCEDURE SearchPieces(
     IN _color VARCHAR(255),
     IN _size VARCHAR(255),
     IN _brand_name VARCHAR(255),
-    IN _material VARCHAR(255)
+    IN _material VARCHAR(255),
+    IN _style_name VARCHAR(255)
 )
 BEGIN
-    SET @sql = 'SELECT p.*, b.brand_name FROM piece p LEFT JOIN brand b ON p.brand_id = b.brand_id WHERE 1=1';
+    SET @sql = 'SELECT p.*, b.brand_name FROM piece p LEFT JOIN brand b ON p.brand_id = b.brand_id LEFT JOIN piece_style ps ON p.piece_id = ps.piece_id LEFT JOIN style s ON ps.style_id = s.style_id WHERE 1=1';
 
     IF _piece_name IS NOT NULL THEN
         SET @sql = CONCAT(@sql, ' AND p.piece_name LIKE ', CONCAT('\'%', _piece_name, '%\''));
@@ -182,6 +220,10 @@ BEGIN
 
     IF _material IS NOT NULL THEN
         SET @sql = CONCAT(@sql, ' AND p.material LIKE ', CONCAT('\'%', _material, '%\''));
+    END IF;
+    
+    IF _style_name IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND s.style_name LIKE ', CONCAT('\'%', _style_name, '%\''));
     END IF;
 
     PREPARE stmt FROM @sql;
