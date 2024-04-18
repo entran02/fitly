@@ -72,10 +72,98 @@ CREATE TABLE wishlisted_pieces (
     FOREIGN KEY (piece_id) REFERENCES piece(piece_id) ON DELETE CASCADE
 );
 
--- CREATE TABLE wishlisted_outifts (
---     user_id INT,
---     outfit_id INT,
---     PRIMARY KEY (user_id, outfit_id),
---     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
---     FOREIGN KEY (outfit_id) REFERENCES outfit(outfit_id) ON DELETE CASCADE
--- );
+
+-- insertions for test data:
+INSERT INTO user (username, password) VALUES ('test', 'test');
+
+-- insert brand:
+
+INSERT INTO brand (brand_name) VALUES ('Oakley');
+INSERT INTO brand (brand_name) VALUES ('Diesel');
+INSERT INTO brand (brand_name) VALUES ('Stone Island');
+INSERT INTO brand (brand_name) VALUES ('Salomon');
+
+
+-- insert pieces: 
+-- oakley bag 
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Cross body bag',  -- Example piece name
+    'Bag',  -- Example piece type
+    'Black',  -- Example color
+    'One Size',  -- Example size
+    (SELECT brand_id FROM brand WHERE brand_name = 'Oakley'),  -- Retrieves brand_id for Oakley
+    'Polyester',  -- Example material
+    'bag.jpeg'  -- Example image path
+);
+
+-- insert hat:
+
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Cool hat',  -- Example piece name
+    'Hat',  -- Example piece type
+    'Black',  -- Example color
+    'One Size',  -- Example size
+    NULL,
+    'Fur',  -- Example material
+    'hat.jpeg'  -- Example image path
+);
+
+-- insert jacket:
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Leather Jacket',  -- Example piece name
+    'Jacket',  -- Example piece type
+    'Black',  -- Example color
+    'L',  -- Example size
+    NULL,
+    'Leather',  -- Example material
+    'jacket.jpeg'  -- Example image path
+);
+
+-- insert pants:
+
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Zipper Pants',  -- Example piece name
+    'Pants',  -- Example piece type
+    'Gray',  -- Example color
+    'Medium',  -- Example size
+    (SELECT brand_id FROM brand WHERE brand_name = 'Stone Island'),  -- Retrieves brand_id for Oakley
+    'Cotton',  -- Example material
+    'pants.jpeg'  -- Example image path
+);
+
+-- insert shirt:
+
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Diesel Crop Top',  -- Example piece name
+    'Shirt',  -- Example piece type
+    'Gray',  -- Example color
+    'Small',  -- Example size
+    (SELECT brand_id FROM brand WHERE brand_name = 'Diesel'),  -- Retrieves brand_id for Oakley
+    'Cotton',  -- Example material
+    'shirt.jpeg'  -- Example image path
+);
+-- insert shoes:
+
+-- insert pants:
+
+INSERT INTO piece (user_id, piece_name, piece_type, color, size, brand_id, material, image)
+VALUES (
+    (SELECT user_id FROM user WHERE username = 'test'),  -- This assumes the user 'test' has been created
+    'Cool Shoes',  -- Example piece name
+    'Shoes',  -- Example piece type
+    'White',  -- Example color
+    'Medium',  -- Example size
+    (SELECT brand_id FROM brand WHERE brand_name = 'Salomon'),  -- Retrieves brand_id for Oakley
+    'Synthetic',  -- Example material
+    'shoes.jpeg'  -- Example image path
+);
