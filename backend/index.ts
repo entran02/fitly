@@ -136,15 +136,16 @@ async function getPieceByUserIdAndPieceId(userId: string, pieceId: string): Prom
     }
 }
 
-async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string }): Promise<Piece[]> {
+async function searchPieces(params: { piece_name?: string, piece_type?: string, color?: string, size?: string, brand_name?: string, material?: string, style_name?: string }): Promise<Piece[]> {
     try {
-        const [results] = await database.query('CALL SearchPieces(?, ?, ?, ?, ?, ?)', [
+        const [results] = await database.query('CALL SearchPieces(?, ?, ?, ?, ?, ?, ?)', [
             params.piece_name || null,
             params.piece_type || null,
             params.color || null,
             params.size || null,
             params.brand_name || null,
-            params.material || null
+            params.material || null,
+            params.style_name || null
         ]);
         return results[0];
     } catch (error) {
@@ -340,7 +341,6 @@ app.post('/api/users/:userId/wishlist', async (req: Request, res: Response) => {
 
 
 app.get('/api/search/pieces', async (req: Request, res: Response) => {
-    // Collect search parameters from the query string
     const searchParams = {
         piece_name: req.query.piece_name as string | undefined,
         piece_type: req.query.piece_type as string | undefined,
@@ -348,6 +348,7 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
         size: req.query.size as string | undefined,
         brand_name: req.query.brand_name as string | undefined,
         material: req.query.material as string | undefined,
+        style_name: req.query.style_name as string | undefined
     };
 
     try {
@@ -358,6 +359,7 @@ app.get('/api/search/pieces', async (req: Request, res: Response) => {
     }
 });
 
+
 app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Response) => {
   const userId = req.params.userId;
   const userIdInt = parseInt(userId);
@@ -367,7 +369,7 @@ app.delete('/api/users/:userId/pieces/:pieceId', async (req: Request, res: Respo
     // Check if the piece belongs to the current user
     const piece = await getPieceByUserIdAndPieceId(userId, pieceId);
 
-    // Tests to see if the piece and user IDs are being fetched correctly
+    // tests to see if the piece and user IDs are being fetched correctly
     console.log('Fetched Piece:', piece);
     if (piece) {
         console.log('Piece User ID:', piece.user_id, 'Type:', typeof piece.user_id);

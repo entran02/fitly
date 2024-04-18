@@ -8,6 +8,7 @@ interface SearchBarProps {
     size?: string,
     brand_name?: string,
     material?: string,
+    style?: string,
   }) => void;
 }
 
@@ -19,6 +20,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     size: '',
     brand_name: '',
     material: '',
+    style: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +79,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         value={searchParams.material}
         onChange={handleChange}
         placeholder="Material"
+      />
+      <input
+        type="text"
+        name="style"
+        value={searchParams.style}
+        onChange={handleChange}
+        placeholder="Style"
       />
       <button type="submit" className="btn btn-primary">
         Search

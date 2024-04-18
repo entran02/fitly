@@ -155,10 +155,11 @@ CREATE PROCEDURE SearchPieces(
     IN _color VARCHAR(255),
     IN _size VARCHAR(255),
     IN _brand_name VARCHAR(255),
-    IN _material VARCHAR(255)
+    IN _material VARCHAR(255),
+    IN _style_name VARCHAR(255)
 )
 BEGIN
-    SET @sql = 'SELECT p.*, b.brand_name FROM piece p LEFT JOIN brand b ON p.brand_id = b.brand_id WHERE 1=1';
+    SET @sql = 'SELECT p.*, b.brand_name FROM piece p LEFT JOIN brand b ON p.brand_id = b.brand_id LEFT JOIN piece_style ps ON p.piece_id = ps.piece_id LEFT JOIN style s ON ps.style_id = s.style_id WHERE 1=1';
 
     IF _piece_name IS NOT NULL THEN
         SET @sql = CONCAT(@sql, ' AND p.piece_name LIKE ', CONCAT('\'%', _piece_name, '%\''));
@@ -182,6 +183,10 @@ BEGIN
 
     IF _material IS NOT NULL THEN
         SET @sql = CONCAT(@sql, ' AND p.material LIKE ', CONCAT('\'%', _material, '%\''));
+    END IF;
+    
+    IF _style_name IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND s.style_name LIKE ', CONCAT('\'%', _style_name, '%\''));
     END IF;
 
     PREPARE stmt FROM @sql;
